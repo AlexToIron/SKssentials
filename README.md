@@ -6,6 +6,7 @@ SKssentials est un skript minecraft qui reprend les fonctions du plugins Essenti
 - Skript 2.6.2
 
 ## Les commandes :
+Les commandes disponibles dans le skript
 
 - /gm
 - /fly
@@ -22,3 +23,5 @@ SKssentials est un skript minecraft qui reprend les fonctions du plugins Essenti
 - /setspawn
 - /spawn
 - /setmotd
+
+
