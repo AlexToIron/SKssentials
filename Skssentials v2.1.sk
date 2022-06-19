@@ -1,0 +1,312 @@
+#=========================
+# SKSSENTIALS
+#=========================
+#=========================
+# Description : Ceci est un skript qui reprends les fonctions du plugin EssentialsX.
+# Version : 2.1
+# Author : Darkin88
+#=========================
+
+#=========================
+# Configuration
+#=========================
+options:
+	# Message de join 
+	joinMessage: §7[§a+§7] §f%player%
+	# Message de quitte
+	quitMessage: §7[§4-§7] §f%player%
+	# Message de bienvenue
+	welcomeMessage: §b§lNOUVEAU> §f§lSouhaiter tous la bienvenue à %player% sur le serveur §f§l!
+
+	# Format messages:
+	# op
+	opMessageFormat: §4%player% : §c%message%
+	# non op
+	normalMessageFormat: §f%player% : §f%message%
+
+	# Message de permission
+	permissionMessage: §cVous avez pas la permission !
+	
+	# Commande /rules
+	rules: 1) Ne pas cheat. \n2) Ne pas grief. \n3) Ne pas pas insulter.
+
+
+	# Permissions:
+
+	# Permission /gamemode
+	permGm: gamemode.use 
+	# Permission /setspawn
+	permSetSpawn: setSpawn.use
+	# Permission /setmotd
+	permMotd: setMotd.use
+	# Permission /fly
+	permFly: fly.use
+	# Permission /god 
+	permGod: god.use
+	# Permission /heal
+	permHeal: heal.use
+	# Permission /feed
+	permFeed: feed.use
+	# Permission /day et /night
+	permTime: setTime.use
+
+
+# Message automatiques
+every 5 minutes:
+	broadcast "§eCeci est un message automatique !(1)"
+
+every 10 minutes:
+	broadcast "§eCeci est un message automatique ! (2)"
+
+every 30 minutes:
+	broadcast "§eCeci est un message automatique ! (3)"
+
+
+
+
+#=========================
+# Code 
+#=========================
+
+
+# Message quand le skript s'active et se désactive
+on skript enable:
+	broadcast "§aLe skript vient de s'activer"
+
+on skript disable:
+	broadcast "§4Le skript vient de s'éteindre"
+
+
+# Commande /ping 
+command /ping:
+	description: Cette commande permet de voir son ping
+	trigger:
+		send "Pong!" to player
+		send "&fTon ping : &a%ping of player% &fms."
+
+
+# Commande /suicide
+command /suicide:
+	description: Cette commande permet de se suicider
+	trigger:
+		make console execute command "/kill %player%"
+		broadcast "§a%player% §es'est suicidé"
+
+
+# Commande /rules
+command /rules:
+	description: Cette commande permet de voir les règles du serveur
+	aliases: rule 
+	trigger:
+		send "{@rules}" to player
+
+
+# Commande /kit
+command /kit <text>:
+	description: Cette commande permet de obtenir un kit
+	usage: §c/kit <tool>
+	trigger:
+		if arg-1 is "tool":
+			give player 1 stone sword
+			give player 1 stone pickaxe
+			give player 1 stone pickaxe
+			give player 1 stone shovel
+#		if arg-1 is "NomDuKit":
+#			give player 1 ITEM
+
+
+# Commande /day et /night
+command /day:
+	description: Cette commande permet de mettre le jour 
+	permission: {@permTime}
+	permission message: {@permissionMessage}
+	trigger:
+		make console execute command "/time set day"
+		send "§6Il fait jour" to player
+
+# Commande /night
+command /night:
+	description: Cette commande permet de mettre la nuit
+	permission: {@permTime}
+	permission message: {@permissionMessage}
+	trigger:
+		make console execute command "/time set night"
+		send "§6Il fait nuit" to player
+
+
+# Commande /afk
+command /afk:
+	description: Cette commande permet de se mettre en afk
+	trigger:
+		set {afk.%player%} to true
+		broadcast "§7*%player% est AFK"
+
+on any move:
+	if {afk.%player%} is true:
+		set {afk.%player%} to false
+		broadcast "§7*%player% n'est plus AFK"
+
+
+# action quand un joueur rejoint/quitte le serveur
+on join:
+	set join message to "{@joinMessage}"
+	if {Spawn} is set:
+		teleport player to {Spawn}
+	if {motd} is set:
+		send "{motd}" to player
+	if {afk.%player%} is true:
+		set {afk.%player%} to false
+	if {god.%player%} is true:
+		set {god.%player%} to false
+
+on quit:
+	set quit message to "{@quitMessage}"
+
+
+# action quand un nouveau joueur rejoint le serveur
+on first join:
+	broadcast "{@welcomeMessage}"
+	make player execute command "/kit tool"
+
+
+# Chat du jeu
+on chat:
+	if message contains "&":
+		replace "&" with "§" in message
+	if {afk.%player%} is true:
+		set {afk.%player%} to false
+		broadcast "§7*%player% n'est plus AFK"
+	
+# Couleur pour les joueurs op (si vous utiliser un autre plugins de permissions, vous pouvezz suprimmer cette ligne)	
+on chat:
+	if player is op:
+		set chat format to "{@opMessageFormat}"
+	if player isn't op:
+		set chat format to "{@normalMessageFormat}"
+
+
+# Commande /gamemode
+command /gamemode <text> [<offline player>]:
+	description: Cette commande permet de changer de mode de jeu
+	permission: {@permGm}
+	permission message: {@permissionMessage}
+	usage: §c/gm <0/1/2/3> <Joueur>
+	aliases: gm
+	trigger:
+		if arg-2 is not set:
+			if arg 1 is "0", "survival" or "s":
+				set gamemode of player to survival
+				send "§6Votre mode de jeu a été changé en §aSurvie" to player
+			if arg 1 is "1", "creative" or "c":
+				set gamemode of player to creative
+				send "§6Votre mode de jeu a été changé en §aCréatif" to player
+			if arg 1 is "2", "adventure" or "a":
+				set gamemode of player to adventure
+				send "§6Votre mode de jeu a été changé en §aAventure" to player
+			if arg 1 is "3", "spectator" or "sp":
+				set gamemode of player to spectator
+				send "§6Votre mode de jeu a été changé en §aSpectateur" to player
+		if arg-2 is set:
+			if arg 1 is "0", "survival" or "s":
+				set gamemode of arg-2 to survival
+				send "§6Votre mode de jeu a été changé en §cSurvie" to arg-2
+			if arg 1 is "1", "creative" or "c":
+				set gamemode of arg-2 to creative
+				send "§6Votre mode de jeu a été changé en §cCréatif" to arg-2
+			if arg 1 is "2", "adventure" or "a":
+				set gamemode of arg-2 to adventure
+				send "§6Votre mode de jeu a été changé en §cAventure" to arg-2
+			if arg 1 is "3", "spectator" or "sp":
+				set gamemode of arg-2 to spectator
+				send "§6Votre mode de jeu a été changé en §cSpectateur" to arg-2
+
+
+# Commande /setspawn et /spawn
+command /setspawn:
+	description: Cette commande permet de définir le point de spawn du monde
+	permission: {@permSetSpawn}
+	permission message: {@permissionMessage}
+	trigger:
+		set {Spawn} to location of player
+		send "§aLe spawn vient d'etre défini"
+
+command /spawn:
+	description: Cette commande permet de se téléporter au spawn du monde
+	trigger:
+		if {Spawn} is set:
+			send "§eVous avez été TP au spawn"
+			teleport player to {Spawn}
+		else:
+			send "§4Le spawn n'existe pas" to player
+
+
+# Commande /setmotd
+command /setmotd <text>:
+	description: Cette commande permet de définir le motd du serveur
+	permission: {@permMotd}
+	permission message: {@permissionMessage}
+	usage: §c/setmotd <message>
+	trigger:
+		set {Motd} to "%arg-1%"
+		send "§aLe MOTD a été défini sur : §f%{Motd}%" to player
+
+
+# Commande /fly
+command /fly <text> [<offline player>]:
+	description: Cette commande permet d'activer ou désactiver le fly
+	permission: {@permFly}
+	permission message: {@permissionMessage}
+	usage: §c/fly on/off <Joueur>
+	trigger:
+		if arg-2 isn't set:
+			if arg-1 is "on":
+				set player's flight mode to true
+				send "§aFly activé" to player
+			if arg-1 is "off":
+				set player's flight mode to false
+				send "§4Fly desactivé" to player
+		if arg-2 is set:
+			if arg-2 is online:
+				if arg-1 is "on":
+					set arg-2's flight mode to true
+					send "§aFly activé" to arg-2
+				if arg-1 is "off":
+					set arg-2's flight mode to false
+					send "§4Fly desactivé" to arg-2
+			else:
+				send "§cCe joueur n'est pas connecté"
+
+
+# Commande /god 
+command /god <text>:
+	description: Cette commande permet de devenir invincible
+	permission: {@permGod}
+	permission message: {@permissionMessage}
+	usage: §c/god <on/off>
+	trigger:
+		if arg-1 is "on":
+			set {god.%player%} to true
+		if arg-1 is "off":
+			set {god.%player%} to false
+
+on damage:
+	if {god.%victim%} is true:
+		cancel event
+
+
+# Commande /heal
+command /heal:
+	description: Cette commande permet de redonner toute sa vie à la personne qui l'execute
+	permission: {@permHeal}
+	permission message: {@permissionMessage}
+	trigger:
+		heal player
+
+
+# Commande /feed
+command /feed:
+	description: Cette commande permet de redonner toute sa nourriture à la personne qui l'execute
+	permission: {@permFeed}
+	permission message: {@permissionMessage}
+	trigger:
+		set player's food bar to 10
