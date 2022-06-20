@@ -33,5 +33,14 @@ Les commandes disponibles dans le skript
 - /setspawn
 - /spawn
 - /setmotd
+- /kick
+- /mute
+- /unmute
+- /ban
+- /unban
+- /msg
+- /broadcast
+- /money
+- /clear
 
 
