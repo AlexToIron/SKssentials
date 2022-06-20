@@ -42,5 +42,8 @@ Les commandes disponibles dans le skript
 - /broadcast
 - /money
 - /clear
+- ...
 
 
+## Languages:
+Skript
